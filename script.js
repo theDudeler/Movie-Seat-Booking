@@ -3,6 +3,7 @@ const seats = document.querySelectorAll(".row .seat:not(.occupied)");
 const count = document.getElementById("count");
 const total = document.getElementById("total");
 const movieSelect = document.getElementById("movie");
+const button = document.querySelector("button");
 
 populateUI();
 
@@ -40,11 +41,48 @@ function populateUI() {
       }
     });
   }
-
   const selectedMovieIndex = localStorage.getItem("selectedMovieIndex");
 
   if (selectedMovieIndex !== null) {
     movieSelect.selectedIndex = selectedMovieIndex;
+  }
+
+  const occupiedSeatIndex = JSON.parse(localStorage.getItem("occupiedSeats"));
+
+  console.log(occupiedSeatIndex);
+
+  if (occupiedSeatIndex !== null && occupiedSeatIndex.length > 0) {
+    seats.forEach((seat, index) => {
+      if (occupiedSeatIndex.indexOf(index) > -1) {
+        seat.classList.add("occupied");
+      }
+    });
+  }
+}
+
+// Confirm purchase
+function buyNow() {
+  if (+count.innerText !== 0) {
+    seats.forEach((seat) => {
+      if (seat.classList.contains("selected")) {
+        seat.classList.remove("selected");
+        seat.classList.add("occupied");
+      }
+    });
+    const purchased = document.getElementById("purchased");
+    purchased.innerText = "purchased";
+    button.innerText = "Purchased!";
+
+    const occupiedSeats = document.querySelectorAll(".row .seat.occupied");
+
+    // Copy selected seats into array
+    // Map through array
+    // return a new array indexes
+    const occupiedSeatsIndex = [...occupiedSeats].map((seat) =>
+      [...seats].indexOf(seat)
+    );
+    localStorage.setItem("occupiedSeats", JSON.stringify(occupiedSeatsIndex));
+    localStorage.removeItem("selectedSeats");
   }
 }
 
@@ -64,6 +102,11 @@ container.addEventListener("click", (e) => {
     e.target.classList.toggle("selected");
     updateSelectedCount();
   }
+});
+
+// Buy now
+button.addEventListener("click", () => {
+  buyNow();
 });
 
 // initial count and total set
